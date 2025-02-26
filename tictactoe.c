@@ -1,11 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>   
 
 #define SIZE 3
 
-//board size
 char board[SIZE][SIZE] = { {'1', '2', '3'}, {'4', '5', '6'}, {'7', '8', '9'} };
 
-// Function to display the board
+// display the board
 void displayBoard() {
     printf("\n");
     for (int i = 0; i < SIZE; i++) {
@@ -23,8 +24,8 @@ void displayBoard() {
 int checkWin() {
     // check rows and columns
     for (int i = 0; i < SIZE; i++) {
-        if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) return 1; // row match
-        if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) return 1; // column match
+        if (board[i][0] == board[i][1] && board[i][1] == board[i][2]) return 1; // Row match
+        if (board[0][i] == board[1][i] && board[1][i] == board[2][i]) return 1; // Column match
     }
     // check diagonals
     if (board[0][0] == board[1][1] && board[1][1] == board[2][2]) return 1;
@@ -42,28 +43,43 @@ int isDraw() {
     return 1; // no empty spots, game is a draw
 }
 
-// function to make a move
+// function to make a move for the player
 void makeMove(int player) {
     int move;
     char symbol = (player == 1) ? 'X' : 'O';
 
-    while (1) {
-        printf("Player %d (%c), enter your move (1-9): ", player, symbol);
-        scanf("%d", &move);
-        
-        if (move < 1 || move > 9) {
-            printf("Invalid move! Please enter a number between 1-9.\n");
-            continue;
+    if (player == 1) { // Human Player (X)
+        while (1) {
+            printf("Player %d (%c), enter your move (1-9): ", player, symbol);
+            scanf("%d", &move);
+            
+            if (move < 1 || move > 9) {
+                printf("Invalid move! Please enter a number between 1-9.\n");
+                continue;
+            }
+
+            int row = (move - 1) / SIZE;
+            int col = (move - 1) % SIZE;
+
+            if (board[row][col] == 'X' || board[row][col] == 'O') {
+                printf("Spot already taken! Try again.\n");
+            } else {
+                board[row][col] = symbol;
+                break;
+            }
         }
+    } else { // Automatic move (O)
+        printf("Computer (O) is making a move...\n");
+        srand(time(0)); // seed for randomness
+        while (1) {
+            move = (rand() % 9) + 1; // pick a random number between 1-9
+            int row = (move - 1) / SIZE;
+            int col = (move - 1) % SIZE;
 
-        int row = (move - 1) / SIZE;
-        int col = (move - 1) % SIZE;
-
-        if (board[row][col] == 'X' || board[row][col] == 'O') {
-            printf("Spot already taken! Try again.\n");
-        } else {
-            board[row][col] = symbol;
-            break;
+            if (board[row][col] != 'X' && board[row][col] != 'O') {
+                board[row][col] = symbol;
+                break;
+            }
         }
     }
 }
@@ -80,7 +96,10 @@ int main() {
 
         if (checkWin()) {
             displayBoard();
-            printf("Player %d wins! 🎉\n", currentPlayer);
+            if (currentPlayer == 1)
+                printf("Player 1 (X) wins! 🎉\n");
+            else
+                printf("Computer (O) wins! 🤖🏆\n");
             break;
         }
 
